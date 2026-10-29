@@ -1,0 +1,34 @@
+[tools]
+node = "lts"
+pnpm = "latest"
+
+[tasks."ui:install"]
+dir = "web"
+run = "pnpm install"
+
+[tasks."ui:dev"]
+description = "Run the web UI against a button (DEVICE_URL=http://<ip>)"
+dir = "web"
+run = "pnpm dev"
+
+[tasks."ui:build"]
+description = "Build the web UI into firmware/include/web-ui.h"
+dir = "web"
+depends = ["ui:install"]
+run = "pnpm build"
+
+[tasks.build]
+description = "Build firmware"
+dir = "firmware"
+depends = ["ui:build"]
+run = "pio run"
+
+[tasks.flash]
+description = "Build and flash a button (PORT=/dev/cu.usbserial-xxx)"
+dir = "firmware"
+depends = ["ui:build"]
+run = "pio run -t upload ${PORT:+--upload-port $PORT}"
+
+[tasks.monitor]
+dir = "firmware"
+run = "pio device monitor ${PORT:+--port $PORT}"
